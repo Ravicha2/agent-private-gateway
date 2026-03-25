@@ -16,8 +16,8 @@ A middleware gateway that intercepts requests, tokenizes sensitive values, sends
 | Phase 2 | ✅ COMPLETED | Sensitive Data Loading & Pattern Matching | [implementation-phase-2.md](./implementation-phase-2.md) |
 | Phase 3 | ✅ COMPLETED | Tokenization Engine | [implementation-phase-3.md](./implementation-phase-3.md) |
 | Phase 4 | ✅ COMPLETED | Ollama Client & Proxy Integration | [implementation-phase-4.md](./implementation-phase-4.md) |
-| Phase 5 | 🔲 NOT STARTED | De-tokenization & Response Processing | [implementation-phase-5.md](./implementation-phase-5.md) |
-| Phase 6 | 🔲 NOT STARTED | Docker Integration | [implementation-phase-6.md](./implementation-phase-6.md) |
+| Phase 5 | ✅ COMPLETED | De-tokenization & Response Processing | [implementation-phase-5.md](./implementation-phase-5.md) |
+| Phase 6 | ✅ COMPLETED | Docker Integration | [implementation-phase-6.md](./implementation-phase-6.md) |
 | Phase 7 | 🔲 NOT STARTED | Testing & Validation | [implementation-phase-7.md](./implementation-phase-7.md) |
 
 ---

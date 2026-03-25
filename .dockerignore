@@ -1,0 +1,20 @@
+# .dockerignore
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.git/
+.gitignore
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.venv/
+
+# Don't ignore these
+!sensitive_data.json
+!requirements.txt

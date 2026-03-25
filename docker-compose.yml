@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  llm-gateway:
+    build: .
+    container_name: llm-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - SENSITIVE_DATA_PATH=/app/sensitive_data.json
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./sensitive_data.json:/app/sensitive_data.json:ro
+    depends_on:
+      ollama:
+        condition: service_started
+    networks:
+      - gateway-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - gateway-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  ollama_data:
+    driver: local
+
+networks:
+  gateway-network:
+    driver: bridge

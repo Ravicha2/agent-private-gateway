@@ -13,6 +13,7 @@ from .tokenizer import Tokenizer
 from .store import TokenStore
 from .loader import SensitiveDataLoader
 from .ollama_client import OllamaClient
+from .detokenizer import Detokenizer
 
 
 # Global instances
@@ -21,15 +22,17 @@ logger = structlog.get_logger()
 sensitive_loader: SensitiveDataLoader = None
 tokenizer: Tokenizer = None
 ollama_client: OllamaClient = None
+detokenizer: Detokenizer = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan - initialize and cleanup resources."""
-    global sensitive_loader, tokenizer, ollama_client
+    global sensitive_loader, tokenizer, ollama_client, detokenizer
     sensitive_loader = SensitiveDataLoader(config.sensitive_data_path)
     tokenizer = Tokenizer(sensitive_loader)
     ollama_client = OllamaClient(config.ollama_url)
+    detokenizer = Detokenizer(fuzzy_match=True)
     logger.info("tokenization_initialized", sensitive_data_path=str(config.sensitive_data_path))
     yield
     # Cleanup
@@ -94,7 +97,7 @@ async def chat(request: ChatRequest, store: TokenStore = Depends(get_token_store
     Chat endpoint - handles LLM requests with tokenization and proxies to Ollama.
     """
     try:
-        # Tokenize input
+        # 1. Tokenize input
         tokenized = tokenizer.tokenize_messages(
             [msg.model_dump() for msg in request.messages],
             store
@@ -106,14 +109,25 @@ async def chat(request: ChatRequest, store: TokenStore = Depends(get_token_store
             model=request.model,
         )
 
-        # Forward to Ollama
+        # 2. Forward to Ollama
         ollama_response = await ollama_client.chat(
             model=request.model,
             messages=tokenized
         )
 
-        # Return raw Ollama response (de-tokenization in Phase 5)
-        return ollama_response
+        # 3. De-tokenize response
+        restored_response = detokenizer.restore_chat_response(
+            ollama_response,
+            store
+        )
+
+        logger.info(
+            "response_detokenized",
+            tokens_restored=restored_response.get("_detokenization", {}).get("tokens_restored", 0),
+            success=restored_response.get("_detokenization", {}).get("success", True),
+        )
+
+        return restored_response
 
     except httpx.TimeoutException:
         raise HTTPException(status_code=504, detail="Ollama request timed out")
