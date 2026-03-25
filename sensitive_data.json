@@ -1,0 +1,7 @@
+{
+  "emails": ["test@example.com", "alice@email.com", "bob@company.org"],
+  "phones": ["555-0123", "+1-555-0199", "(555) 555-5555"],
+  "ssns": ["123-45-6789"],
+  "api_keys": ["sk-live-abc123xyz"],
+  "custom": ["SuperSecretProject", "ConfidentialData"]
+}
