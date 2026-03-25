@@ -54,6 +54,7 @@ or expand them. Keep the exact token format in your output.
         payload = {
             "model": model,
             "messages": messages,
+            "stream": False,
             **kwargs
         }
 
